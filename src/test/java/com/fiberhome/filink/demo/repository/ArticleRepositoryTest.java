@@ -1,14 +1,18 @@
 package com.fiberhome.filink.demo.repository;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.Snowflake;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.json.JSONUtil;
 import com.fiberhome.filink.demo.MongodbApplicationTests;
 import com.fiberhome.filink.demo.pojo.Article;
+import com.fiberhome.filink.demo.pojo.BookBase;
+import com.fiberhome.filink.demo.pojo.BookInfo;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,6 +22,8 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -60,8 +66,8 @@ public class ArticleRepositoryTest extends MongodbApplicationTests {
     public void testSaveList() {
         List<Article> articles = Lists.newArrayList();
         for (int i = 0; i < 10; i++) {
-            articles.add(new Article(snowflake.nextId(), RandomUtil.randomString(20), RandomUtil.randomString(150), DateUtil
-                    .date(), DateUtil.date(), 0L, 0L));
+            articles.add(new Article(snowflake.nextId(), RandomUtil.randomString(5), RandomUtil.randomString(10), DateUtil
+                    .date(), DateUtil.date(), (long) i, (long) i));
         }
         articleRepo.save(articles);
 
@@ -159,6 +165,61 @@ public class ArticleRepositoryTest extends MongodbApplicationTests {
     public void testFindByTitleLike() {
         List<Article> articles = articleRepo.findByTitleLike("更新");
         log.info("【articles】= {}", JSONUtil.toJsonStr(articles));
+    }
+
+    @Test
+    public void updateTest() {
+        Article build = Article.builder().id(2L).title("柯基111").visits(50L).build();
+        articleRepo.save(build);
+    }
+
+    @Test
+    public void batchUpdateTest() {
+
+        Article build = Article.builder().id(3L).title("柯基222").visits(50L).build();
+        //mongoTemplate.insert(build);
+        //articleRepo.save(build);
+        mongoTemplate.save(build);
+
+        boolean exists = mongoTemplate.exists(new Query(Criteria.where("_id").is(2L)), Article.class);
+        System.out.println(exists);
+    }
+
+    @Test
+    public void copyTest() {
+
+        List<Article> articleList = mongoTemplate.findAll(Article.class);
+
+        BookInfo bookInfo = null;
+        List<BookInfo> bookInfoList = new ArrayList<>(articleList.size());
+        for (Article article : articleList) {
+            bookInfo = new BookInfo();
+            BeanUtils.copyProperties(article, bookInfo);
+            this.setBase(article, bookInfo);
+            bookInfoList.add(bookInfo);
+        }
+
+        bookInfoList.forEach(s -> System.out.println("获取的数据：" + s));
+    }
+
+    private void setBase(Article article, BookInfo bookBase) {
+        bookBase.setThumbUps(article.getThumbUp());
+        bookBase.setVisit(article.getVisits());
+    }
+
+    @Test
+    public void idTest(){
+        //Query query = new Query(Criteria.where("visits").is(0L).and("id").is(1262231645461811200L));
+        Query query = new Query(Criteria.where("bookId").is("T5qMCuMzO0Wu8gXpkdX"));
+        BookInfo one = mongoTemplate.findOne(query, BookInfo.class);
+        System.out.println("获取的数据："+one);
+    }
+
+    @Test
+    public void bookInfoTest(){
+
+        mongoTemplate.save(BookInfo.builder().bookId("T5qMCuMzO0Wu8gXpkdX").content("哈哈哈").title("1212").build());
+
     }
 
 }

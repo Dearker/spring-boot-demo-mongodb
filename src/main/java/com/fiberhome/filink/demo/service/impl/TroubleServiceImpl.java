@@ -7,7 +7,6 @@ import com.fiberhome.filink.demo.repository.TroublesRepository;
 import com.fiberhome.filink.demo.service.TroubleService;
 import com.fiberhome.filink.demo.vo.QueryParam;
 import com.mongodb.BasicDBObject;
-import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +17,6 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -59,10 +57,10 @@ public class TroubleServiceImpl implements TroubleService {
         query.put(TroubleConstant.TROUBLE_TYPE, "电力故障");
         query.put(TroubleConstant.REPORT_USER_ID, "abc123");
         query.put(TroubleConstant.HANDLE_STATUS, "已打回");
-        DBCursor dbCursor = mongoTemplate.getCollection("troubles").find(query)
-                .sort(new BasicDBObject(TroubleConstant.TROUBLE_LEVEL, -1));
+        DBCursor dbCursor = null /*mongoTemplate.getCollection("troubles").find(query)
+                .sort(new BasicDBObject(TroubleConstant.TROUBLE_LEVEL, -1))*/;
 
-        List<Trouble> troubleList = new ArrayList<>(dbCursor.size());
+        List<Trouble> troubleList = new ArrayList<>(1);
         Trouble trouble = null;
         while (dbCursor.hasNext()){
             DBObject dbObject = dbCursor.next();

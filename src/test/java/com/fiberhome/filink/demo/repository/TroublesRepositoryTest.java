@@ -50,8 +50,8 @@ public class TroublesRepositoryTest extends MongodbApplicationTests {
         query.put(TroubleConstant.TROUBLE_TYPE, "电力故障");
         query.put(TroubleConstant.REPORT_USER_ID, "abc123");
         query.put(TroubleConstant.HANDLE_STATUS, "已打回");
-        DBCursor dbCursor = mongoTemplate.getCollection("troubles").find(query)
-                .sort(new BasicDBObject(TroubleConstant.TROUBLE_LEVEL, -1)).limit(50000);
+        DBCursor dbCursor = null/*mongoTemplate.getCollection("troubles").find(query)
+                .sort(new BasicDBObject(TroubleConstant.TROUBLE_LEVEL, -1)).limit(50000)*/;
 
         List<Trouble> troubleList = new ArrayList<>(50000);
         Trouble trouble = null;
